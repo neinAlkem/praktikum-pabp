@@ -1,7 +1,14 @@
 package com.example.praktikum_papb
 /*Nama : Baghas Rizaluddin | NIM  : 225150207111065 */
 
+import FirebaseManager
+import android.app.ListActivity
+import android.content.Intent
 import android.os.Bundle
+import android.os.Message
+import android.provider.ContactsContract.CommonDataKinds.Email
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -14,6 +21,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -21,25 +30,47 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.text.isDigitsOnly
 import com.example.praktikum_papb.ui.theme.PraktikumPAPBTheme
+import com.google.firebase.Firebase
+import com.google.firebase.FirebaseApp
+import com.google.firebase.auth.auth
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 class MainActivity : ComponentActivity() {
+    private val firebaseManager = FirebaseManager() // Instantiate FirebaseManager
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        FirebaseApp.initializeApp(this)
         setContent {
+            LaunchedEffect(Unit) {
+                    val matakuliahList = firebaseManager.getMatakuliah()
+                    Log.d("ListScreen", "Updated MataKuliah List: $matakuliahList")
+            }
             PraktikumPAPBTheme {
                 MainScreen()
             }
@@ -47,13 +78,47 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+
+class AuthManager {
+    private val auth = Firebase.auth
+
+    fun createAccount(email: String, password: String): Flow<AuthResponse> = callbackFlow {
+
+        auth.createUserWithEmailAndPassword(email, password)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    trySend(AuthResponse.Success)
+                } else {
+                    trySend(AuthResponse.Error(massage = task.exception?.message ?: ""))
+                }
+            }
+        awaitClose()
+    }
+
+    fun loginEmail(email: String, password: String): Flow<AuthResponse> = callbackFlow {
+        auth.signInWithEmailAndPassword(email,password)
+            .addOnCompleteListener { task ->
+                if(task.isSuccessful){
+                    trySend(AuthResponse.Success)
+                }else{
+                    trySend((AuthResponse.Error(massage = task.exception?.message ?: "")))
+                }
+            }
+        awaitClose()
+    }
+}
+interface AuthResponse {
+    data object Success : AuthResponse
+    data class Error(val massage : String) : AuthResponse
+}
 @Composable
 fun MainScreen() {
-    var nama by remember { mutableStateOf("") }
-    var NIM by remember { mutableStateOf("") }
-    var showInput by remember { mutableStateOf("") }
-    val buttonColor = if (nama.isNotEmpty() && NIM.isNotEmpty() && NIM.isDigitsOnly()) Color.Blue else Color.Gray
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    val buttonColor = if (email.isNotEmpty() && password.isNotEmpty()) Color.Blue else Color.Gray
     val context = LocalContext.current
+    val authManager = remember { AuthManager() }
+    val coroutineScope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier
@@ -62,42 +127,54 @@ fun MainScreen() {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Text(
+            text = "Login Page",
+            fontSize = 28.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
 
-        Text(text = showInput, modifier = Modifier.padding(bottom = 16.dp))
         OutlinedTextField(
-            value = nama,
+            value = email,
             leadingIcon = {
-                Icon(
-                    imageVector = Icons.Default.Person,
-                    contentDescription = "PersonIcon"
-                )
+                Icon(imageVector = Icons.Default.Email, contentDescription = "EmailIcon")
             },
-            onValueChange = { nama = it },
-            label = { Text("Input Your Name") },
-            placeholder = { Text(text = "Enter Your Name") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+            onValueChange = { email = it },
+            label = { Text("Email") },
+            placeholder = { Text(text = "Enter Your Email") },
+            modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
             shape = RoundedCornerShape(8.dp),
         )
 
         OutlinedTextField(
-            value = NIM,
-            leadingIcon = { Icon(imageVector = Icons.Default.Add, contentDescription = "NIMIcon") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            onValueChange = { NIM = it },
-            label = { Text("Input Your NIM") },
-            placeholder = { Text(text = "Enter Your NIM") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp),
+            value = password,
+            leadingIcon = {
+                Icon(imageVector = Icons.Default.Lock, contentDescription = "PasswordIcon")
+            },
+            visualTransformation = PasswordVisualTransformation(),
+            onValueChange = { password = it },
+            label = { Text("Password") },
+            placeholder = { Text(text = "Enter Your Password") },
+            modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
             shape = RoundedCornerShape(8.dp),
         )
 
         Button(
             onClick = {
-                if (nama.isNotEmpty() && NIM.isNotEmpty() && NIM.isDigitsOnly()) {
-                    showInput = "Name : $nama\nNIM    : $NIM"
+                coroutineScope.launch {
+                    authManager.loginEmail(email, password)
+                        .onEach { response ->
+                            when (response) {
+                                is AuthResponse.Success -> {
+                                    val intent = Intent(context, ListActivty::class.java)
+                                    context.startActivity(intent)
+                                }
+                                is AuthResponse.Error -> {
+                                    Toast.makeText(context, "Login failed: ${response.massage}", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        }.launchIn(this)
                 }
             },
             colors = ButtonDefaults.buttonColors(containerColor = buttonColor),
@@ -107,11 +184,9 @@ fun MainScreen() {
                 pressedElevation = 15.dp,
                 disabledElevation = 0.dp
             ),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp)
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
         ) {
-            Text("Show Name and NIM", color = Color.White)
+            Text("Login", color = Color.White, fontWeight = FontWeight.Bold)
         }
     }
 }
