@@ -1,6 +1,7 @@
 package com.example.praktikum_papb
 
 import FirebaseManager
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -8,6 +9,8 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -34,10 +37,12 @@ class ListActivty : ComponentActivity() {
         finish()
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun ListScreen(onLogout: () -> Unit) {
         var pertemuanByHari by remember { mutableStateOf<Map<String, List<PertemuanWithNama>>>(emptyMap()) }
 
+        // LaunchedEffect to load data from Firebase
         LaunchedEffect(Unit) {
             val matakuliahList = firebaseManager.getMatakuliah()
 
@@ -64,7 +69,18 @@ class ListActivty : ComponentActivity() {
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
-            Text(text = "Daftar Matakuliah", style = MaterialTheme.typography.titleLarge)
+            TopAppBar(
+                title = { Text("ListActivty.kt") },
+                actions = {
+                    IconButton(onClick = {
+                        val intent = Intent(this@ListActivty, GithubProfile::class.java)
+                        startActivity(intent)
+                    }) {
+                        Icon(Icons.Filled.Person, contentDescription = "GitHub Profile")
+                    }
+                }
+            )
+
             Spacer(modifier = Modifier.height(16.dp))
 
             LazyColumn(
@@ -125,6 +141,7 @@ class ListActivty : ComponentActivity() {
     }
 }
 
+// Define PertemuanWithNama data class as before
 data class PertemuanWithNama(
     val namaMataKuliah: String,
     val hari: String,

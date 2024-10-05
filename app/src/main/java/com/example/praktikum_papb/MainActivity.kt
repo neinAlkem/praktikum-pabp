@@ -1,12 +1,10 @@
 package com.example.praktikum_papb
 /*Nama : Baghas Rizaluddin | NIM  : 225150207111065 */
 
+
 import FirebaseManager
-import android.app.ListActivity
 import android.content.Intent
 import android.os.Bundle
-import android.os.Message
-import android.provider.ContactsContract.CommonDataKinds.Email
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -20,10 +18,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -46,7 +42,6 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.text.isDigitsOnly
 import com.example.praktikum_papb.ui.theme.PraktikumPAPBTheme
 import com.google.firebase.Firebase
 import com.google.firebase.FirebaseApp
@@ -57,7 +52,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
+
 
 class MainActivity : ComponentActivity() {
     private val firebaseManager = FirebaseManager() // Instantiate FirebaseManager
@@ -77,7 +72,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
 
 class AuthManager {
     private val auth = Firebase.auth
