@@ -22,7 +22,6 @@ fun MatkulScreen() {
 fun ListScreen(firebaseManager: FirebaseManager) {
     var pertemuanByHari by remember { mutableStateOf<Map<String, List<PertemuanWithNama>>>(emptyMap()) }
 
-    // LaunchedEffect to load data from Firebase
     LaunchedEffect(Unit) {
         val matakuliahList = firebaseManager.getMatakuliah()
 
@@ -84,7 +83,6 @@ fun ListScreen(firebaseManager: FirebaseManager) {
     }
 }
 
-// Utility function to get the order of days
 private fun getDayOrder(hari: String): Int {
     return when (hari) {
         "Senin" -> 1

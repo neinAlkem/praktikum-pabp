@@ -32,14 +32,12 @@ import kotlinx.coroutines.withContext
 fun ProfileScreen(username: String) {
     var user by remember { mutableStateOf<GithubUser?>(null) }
 
-    // Fetch GitHub profile on LaunchedEffect
     LaunchedEffect(username) {
         fetchGitHubProfile(username) { fetchedUser ->
             user = fetchedUser
         }
     }
 
-    // UI Layout for displaying user details
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -79,7 +77,6 @@ fun ProfileScreen(username: String) {
     }
 }
 
-// Function to fetch GitHub profile from the API using Coroutine
 private fun fetchGitHubProfile(username: String, onResult: (GithubUser) -> Unit) {
     CoroutineScope(Dispatchers.IO).launch {
         try {

@@ -52,7 +52,6 @@ class AuthActivity : ComponentActivity(){
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Initialize Firebase Auth
         auth = FirebaseAuth.getInstance()
         setContent {
             MaterialTheme {
