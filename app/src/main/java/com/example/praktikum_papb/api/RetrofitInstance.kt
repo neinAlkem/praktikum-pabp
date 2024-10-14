@@ -1,4 +1,4 @@
-package com.example.praktikum_papb
+package com.example.praktikum_papb.api
 
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory

@@ -1,4 +1,4 @@
-package com.example.praktikum_papb
+package com.example.praktikum_papb.api
 
 import com.google.gson.annotations.SerializedName
 

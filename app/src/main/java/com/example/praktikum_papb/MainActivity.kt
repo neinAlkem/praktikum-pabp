@@ -2,60 +2,52 @@ package com.example.praktikum_papb
 /*Nama : Baghas Rizaluddin | NIM  : 225150207111065 */
 
 
-import FirebaseManager
-import android.content.Intent
+import com.example.praktikum_papb.api.FirebaseManager
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import com.example.praktikum_papb.navigation.NavigationItem
+import com.example.praktikum_papb.navigation.Screen
+import com.example.praktikum_papb.screen.MatkulScreen
+import com.example.praktikum_papb.screen.ProfileScreen
+import com.example.praktikum_papb.screen.TugasScreen
 import com.example.praktikum_papb.ui.theme.PraktikumPAPBTheme
-import com.google.firebase.Firebase
 import com.google.firebase.FirebaseApp
-import com.google.firebase.auth.auth
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
 
 
 class MainActivity : ComponentActivity() {
-    private val firebaseManager = FirebaseManager() // Instantiate FirebaseManager
+    private val firebaseManager = FirebaseManager()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,117 +65,143 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-class AuthManager {
-    private val auth = Firebase.auth
-
-    fun createAccount(email: String, password: String): Flow<AuthResponse> = callbackFlow {
-
-        auth.createUserWithEmailAndPassword(email, password)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    trySend(AuthResponse.Success)
-                } else {
-                    trySend(AuthResponse.Error(massage = task.exception?.message ?: ""))
-                }
-            }
-        awaitClose()
-    }
-
-    fun loginEmail(email: String, password: String): Flow<AuthResponse> = callbackFlow {
-        auth.signInWithEmailAndPassword(email,password)
-            .addOnCompleteListener { task ->
-                if(task.isSuccessful){
-                    trySend(AuthResponse.Success)
-                }else{
-                    trySend((AuthResponse.Error(massage = task.exception?.message ?: "")))
-                }
-            }
-        awaitClose()
-    }
-}
-interface AuthResponse {
-    data object Success : AuthResponse
-    data class Error(val massage : String) : AuthResponse
-}
+//@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen() {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    val buttonColor = if (email.isNotEmpty() && password.isNotEmpty()) Color.Blue else Color.Gray
-    val context = LocalContext.current
-    val authManager = remember { AuthManager() }
-    val coroutineScope = rememberCoroutineScope()
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = "Login Page",
-            fontSize = 28.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
-
-        OutlinedTextField(
-            value = email,
-            leadingIcon = {
-                Icon(imageVector = Icons.Default.Email, contentDescription = "EmailIcon")
-            },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-            onValueChange = { email = it },
-            label = { Text("Email") },
-            placeholder = { Text(text = "Enter Your Email") },
-            modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
-            shape = RoundedCornerShape(8.dp),
-        )
-
-        OutlinedTextField(
-            value = password,
-            leadingIcon = {
-                Icon(imageVector = Icons.Default.Lock, contentDescription = "PasswordIcon")
-            },
-            visualTransformation = PasswordVisualTransformation(),
-            onValueChange = { password = it },
-            label = { Text("Password") },
-            placeholder = { Text(text = "Enter Your Password") },
-            modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
-            shape = RoundedCornerShape(8.dp),
-        )
-
-        Button(
-            onClick = {
-                coroutineScope.launch {
-                    authManager.loginEmail(email, password)
-                        .onEach { response ->
-                            when (response) {
-                                is AuthResponse.Success -> {
-                                    val intent = Intent(context, ListActivty::class.java)
-                                    context.startActivity(intent)
-                                }
-                                is AuthResponse.Error -> {
-                                    Toast.makeText(context, "Login failed: ${response.massage}", Toast.LENGTH_SHORT).show()
-                                }
-                            }
-                        }.launchIn(this)
-                }
-            },
-            colors = ButtonDefaults.buttonColors(containerColor = buttonColor),
-            shape = RoundedCornerShape(20.dp),
-            elevation = ButtonDefaults.buttonElevation(
-                defaultElevation = 10.dp,
-                pressedElevation = 15.dp,
-                disabledElevation = 0.dp
-            ),
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+fun MainScreen(
+    navController: NavHostController = rememberNavController(),
+    modifier: Modifier = Modifier
+){
+    Scaffold(
+        bottomBar = {BottomBar(navController)},
+        modifier = modifier
+    ) { innerPadding ->
+        NavHost(
+            navController = navController,
+            startDestination = Screen.Matkul.route,
+            modifier = Modifier.padding(innerPadding)
         ) {
-            Text("Login", color = Color.White, fontWeight = FontWeight.Bold)
+            composable(Screen.Matkul.route){
+                MatkulScreen()
+            }
+            composable(Screen.Tugas.route){
+                TugasScreen()
+            }
+            composable(Screen.Profile.route){
+                ProfileScreen("neinAlkem")
+            }
         }
     }
 }
+@Composable
+private fun BottomBar(
+    navController: NavController,
+    modifier: Modifier = Modifier
+) {
+    val currentBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = currentBackStackEntry?.destination?.route
+
+    val navigationItems = listOf(
+        NavigationItem(
+            title = "Matkul",
+            icon = Icons.Default.Home,
+            selectedIcon = Icons.Filled.Home,
+            screen = Screen.Matkul
+        ),
+        NavigationItem(
+            title = "Tugas",
+            icon = Icons.Default.Add,
+            selectedIcon = Icons.Filled.Add,
+            screen = Screen.Tugas
+        ),
+        NavigationItem(
+            title = "Profile",
+            icon = Icons.Default.Person,
+            selectedIcon = Icons.Filled.Person,
+            screen = Screen.Profile
+        ),
+    )
+
+    NavigationBar(modifier = modifier) {
+        navigationItems.forEachIndexed { index, item ->
+            NavigationBarItem(
+                label = { Text(text = item.title) },
+                alwaysShowLabel = false,
+                selected = currentRoute == item.screen.route,
+                onClick = {
+                    if (currentRoute != item.screen.route) {
+                        navController.navigate(item.screen.route) {
+                            // Clear back stack to the start destination to prevent back navigation
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            restoreState = true
+                            launchSingleTop = true
+                        }
+                    }
+                },
+                icon = {
+                    Icon(
+                        imageVector = if (currentRoute == item.screen.route) item.selectedIcon else item.icon,
+                        contentDescription = item.title
+                    )
+                }
+            )
+        }
+    }
+}
+//    val items = listOf(
+//        NavigationItem(
+//            title = "Matkul",
+//            icon = Icons.Default.Home,
+//            selectedIcon = Icons.Filled.Home,
+//            screen = Screen.Matkul
+//        ),
+//        NavigationItem(
+//            title = "Tugas",
+//            icon = Icons.Default.Add,
+//            selectedIcon = Icons.Filled.Add,
+//            screen = Screen.Tugas
+//        ),
+//        NavigationItem(
+//            title = "Profile",
+//            icon = Icons.Default.Person,
+//            selectedIcon = Icons.Filled.Person,
+//            screen = Screen.Profile
+//        )
+//    )
+//    var selectedItemIndex by rememberSaveable {
+//        mutableStateOf(0)
+//    }
+//
+//    Surface(
+//        modifier = Modifier.fillMaxSize(),
+//        color = MaterialTheme.colorScheme.background
+//    ) {
+//        Scaffold(
+//            bottomBar = {
+//                NavigationBar {
+//                    items.forEachIndexed { index, item ->
+//                        NavigationBarItem(
+//                            selected = selectedItemIndex == index,
+//                            onClick = {
+//                                selectedItemIndex = index
+//                                navController.navigate(item.screen)
+//                            },
+//                            label = {
+//                                Text(text = item.title)
+//                            },
+//                            alwaysShowLabel = false,
+//                            icon = { Icon(imageVector = if (index == selectedItemIndex) {item.selectedIcon}else item.icon,
+//                                contentDescription = "ItemTitleLogo" )
+//                            })
+//                    }
+//                }
+//            }
+//        ) {
+//
+//        }
+//    }
+//}
 
 @Preview(showBackground = true)
 @Composable

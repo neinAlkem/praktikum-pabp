@@ -1,4 +1,4 @@
-package com.example.praktikum_papb
+package com.example.praktikum_papb.api
 
 data class Pertemuan(
     val hari: String = "",
@@ -7,6 +7,7 @@ data class Pertemuan(
     val ruangan: String = "",
     val praktikum: Boolean = false
 )
+
 
 data class MataKuliah(
     val nama: String = "",

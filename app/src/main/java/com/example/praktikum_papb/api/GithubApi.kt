@@ -1,4 +1,4 @@
-package com.example.praktikum_papb
+package com.example.praktikum_papb.api
 
 import retrofit2.http.GET
 import retrofit2.http.Path

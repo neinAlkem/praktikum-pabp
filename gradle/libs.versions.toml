@@ -12,6 +12,8 @@ googleGmsGoogleServices = "4.4.2"
 firebaseDatabase = "21.0.0"
 retrofit = "2.9.0"
 converter-gson = "2.9.0"
+navigation = "2.4.2"
+navigationRuntimeKtx = "2.8.2"
 
 
 [libraries]
@@ -33,6 +35,8 @@ firebase-database = { group = "com.google.firebase", name = "firebase-database",
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 retrofit-gson-converter = { module = "com.squareup.retrofit2:converter-gson", version = "2.9.0" }
 coil = {module = "io.coil-kt:coil-compose", version="2.6.0"}
+navigation = {group= " androidx.navigation", name = "navigation-compose", version.ref= "navigation"}
+androidx-navigation-runtime-ktx = { group = "androidx.navigation", name = "navigation-runtime-ktx", version.ref = "navigationRuntimeKtx" }
 
 
 [plugins]

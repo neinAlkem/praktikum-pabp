@@ -13,22 +13,24 @@
         android:theme="@style/Theme.PraktikumPAPB">
 
         <activity
-            android:name=".MainActivity"
+            android:name=".AuthActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.PraktikumPAPB">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
-            android:name=".ListActivty"
+            android:name=".MainActivity"
             android:exported="false" />
         <activity
-            android:name=".GithubProfile"
+            android:name=".screen.MatkulScreen"
             android:exported="false" />
+<!--        <activity-->
+<!--            android:name=".screen.ProfileScreen"-->
+<!--            android:exported="false" />-->
     </application>
 
 </manifest>
