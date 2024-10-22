@@ -2,6 +2,8 @@ package com.example.praktikum_papb
 /*Nama : Baghas Rizaluddin | NIM  : 225150207111065 */
 
 
+import TugasScreen
+import android.app.Application
 import com.example.praktikum_papb.api.FirebaseManager
 import android.os.Bundle
 import android.util.Log
@@ -26,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -37,11 +40,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.praktikum_papb.local.TugasRepository
 import com.example.praktikum_papb.navigation.NavigationItem
 import com.example.praktikum_papb.navigation.Screen
 import com.example.praktikum_papb.screen.MatkulScreen
 import com.example.praktikum_papb.screen.ProfileScreen
-import com.example.praktikum_papb.screen.TugasScreen
 import com.example.praktikum_papb.ui.theme.PraktikumPAPBTheme
 import com.google.firebase.FirebaseApp
 
@@ -59,7 +62,7 @@ class MainActivity : ComponentActivity() {
                     Log.d("ListScreen", "Updated MataKuliah List: $matakuliahList")
             }
             PraktikumPAPBTheme {
-                MainScreen()
+                MainScreen(application)
             }
         }
     }
@@ -68,9 +71,11 @@ class MainActivity : ComponentActivity() {
 //@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
+    application: Application,
     navController: NavHostController = rememberNavController(),
     modifier: Modifier = Modifier
 ){
+    val tugasRepository = remember { TugasRepository(application) }
     Scaffold(
         bottomBar = {BottomBar(navController)},
         modifier = modifier
@@ -84,7 +89,7 @@ fun MainScreen(
                 MatkulScreen()
             }
             composable(Screen.Tugas.route){
-                TugasScreen()
+                TugasScreen(tugasRepository = tugasRepository)
             }
             composable(Screen.Profile.route){
                 ProfileScreen("neinAlkem")
@@ -203,10 +208,10 @@ private fun BottomBar(
 //    }
 //}
 
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    PraktikumPAPBTheme {
-        MainScreen()
-    }
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun DefaultPreview() {
+//    PraktikumPAPBTheme {
+//        MainScreen(application)
+//    }
+//}
