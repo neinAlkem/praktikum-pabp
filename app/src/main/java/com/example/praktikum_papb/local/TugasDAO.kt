@@ -8,7 +8,7 @@ import androidx.room.Query
 
 @Dao
 interface TugasDAO {
-    @Query("SELECT * FROM Tugas")
+    @Query("SELECT * FROM Tugas ORDER BY id DESC")
     fun getAllTugas(): LiveData<List<Tugas>>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)

@@ -120,7 +120,7 @@ fun TugasScreen(tugasRepository: TugasRepository) {
 
 @Composable
 fun TugasItem(tugas: Tugas, onComplete: (Boolean) -> Unit) {
-    var isCompleted by remember { mutableStateOf(false) }
+    var isCompleted by remember { mutableStateOf(tugas.selesai) }
 
     Row(
         modifier = Modifier
