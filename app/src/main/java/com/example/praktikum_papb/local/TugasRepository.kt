@@ -21,5 +21,14 @@ class TugasRepository(application: Application) {
             mTugasDAO.updateTugasCompletion(tugasId, isCompleted)
         }
     }
+    fun deleteTugas(tugasId: Int) {
+        executorService.execute {
+            mTugasDAO.deleteTugas(tugasId)
+        }
+    }
+
+
+
+
 
 }

@@ -12,16 +12,22 @@ class TugasViewModel(private val tugasRepository: TugasRepository) : ViewModel()
     val listTugas: LiveData<List<Tugas>> = tugasRepository.getAllTugas()
 
     fun addTugas(matkul: String, detail: String) {
-        val newTugas = Tugas(matkul = matkul, detail = detail, selesai = false)
-        viewModelScope.launch {
-            tugasRepository.insert(newTugas)
+            val newTugas = Tugas(matkul = matkul, detail = detail, selesai = false)
+            viewModelScope.launch {
+                tugasRepository.insert(newTugas)
+            }
         }
-    }
-
-    // New function to update the completion status of a task
     fun updateTugasCompletion(tugasId: Int, isCompleted: Boolean) {
         viewModelScope.launch {
             tugasRepository.updateTugasCompletion(tugasId, isCompleted) // You'll need to implement this in your repository
         }
     }
+    fun deleteTugas(tugasId: Int) {
+        viewModelScope.launch {
+            tugasRepository.deleteTugas(tugasId)
+        }
+    }
+
+
+
 }
